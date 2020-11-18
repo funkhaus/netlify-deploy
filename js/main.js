@@ -13,9 +13,18 @@ var nd = {
 	init: function(){
         
         // What happens when you click on Deploy button
-        $j('#wpadminbar .nd-deploy-button > a').click(function(e){
-           e.preventDefault();
-           nd.runDeploy();
+        $j('#wpadminbar').on('click', '.nd-deploy-button > a', function(e){
+            e.preventDefault();
+            
+            if( $j('.nd-deploy-button').hasClass('nd-status-building') ) {
+                // Trying to scheudle concurrent deploys? Ask for a confirmation.
+                var confirmation = confirm("A deploy is currently progress. Are you sure you want to deploy again?");
+                if(confirmation) {
+                    nd.runDeploy();                                
+                }
+            } else {
+                nd.runDeploy();                
+            }
         });
         
         // Update button state periodically  

@@ -1,6 +1,6 @@
 /* Admin bar deploy button */
 #wpadminbar .nd-deploy-button .dashicons {
-    font-family: 'dashicons';
+    font-family: "dashicons";
     font-size: 20px;
 }
 .nd-deploy-button .msg {
@@ -9,5 +9,5 @@
 .nd-status-success .msg-success,
 .nd-status-building .msg-building,
 .nd-status-failed .msg-failed {
-    display: inline-block;   
+    display: inline-block;
 }

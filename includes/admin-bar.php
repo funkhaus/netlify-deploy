@@ -7,6 +7,11 @@ function nd_toolbar_item($wp_admin_bar)
 {
     $options = get_option("nd_settings");
     $status = nd_get_build_status();
+    $has_build_hook = !empty($options["build_hook_url"]);
+
+    if( !$has_build_hook ) {
+        $status = "no-build-hook";
+    }
 
     $title = '
         <span class="msg msg-success"><span class="dashicons dashicons-admin-site"></span> New Deploy</span>
@@ -24,8 +29,6 @@ function nd_toolbar_item($wp_admin_bar)
         ],
     ];
 
-    if (!empty($options["build_hook_url"])) {
-        $wp_admin_bar->add_node($args);
-    }
+    $wp_admin_bar->add_node($args);
 }
 add_action("admin_bar_menu", "nd_toolbar_item", 999);

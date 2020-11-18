@@ -2,10 +2,12 @@
 #wpadminbar .nd-deploy-button .dashicons {
     font-family: "dashicons";
     font-size: 20px;
+    line-height: 32px;
 }
 .nd-deploy-button .msg {
     display: none;
 }
+.nd-status-no-build-hook .msg-success,
 .nd-status-success .msg-success,
 .nd-status-building .msg-building,
 .nd-status-failed .msg-failed {

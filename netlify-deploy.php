@@ -24,6 +24,8 @@ function nd_plugin_activated()
 {
     $defaults = [
         "last_deploy" => "",
+        "status_url" => "",
+        "build_hook_url" => "",
         "auto_deploy" => 0,
     ];
     add_option("nd_settings", $defaults);

@@ -65,16 +65,15 @@ function nd_get_build_status($content_header = "")
     $options = get_option("nd_settings");
 
     // Get staus badge headers
-    $response = wp_remote_head($options["status_url"]);
+    if (!empty($options["status_url"])) {
+        $response = wp_remote_head($options["status_url"]);
 
-    // Make sure we have headers
-    if ($response["headers"]) {
-        $content_header = $response["headers"]->offsetGet(
-            "content-disposition"
-        );
+        if ($response["headers"]) {
+            $content_header = $response["headers"]->offsetGet(
+                "content-disposition"
+            );
+        }
     }
-
-    //var_dump($content_header); die;
 
     // Determine status from content-disposition header (it inlcudes the SVG filename so we look for that).
     $status = "unknown";

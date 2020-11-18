@@ -101,11 +101,10 @@ function nd_status_url_render()
  */
 function nd_build_hook_url_render()
 {
-    $options = get_option("nd_settings"); ?>
-            <input type='text' class="input input-build-hook regular-text code" name='nd_settings[build_hook_url]' value='<?php echo $options[
-                "build_hook_url"
-            ] ??
-                ""; ?>' placeholder="https://api.netlify.com/build_hooks/123456789abcdefgh">
+    $options = get_option("nd_settings");
+    $build_hook = $options["build_hook_url"] ?? "";
+    ?>
+            <input type='text' class="input input-build-hook regular-text code" name='nd_settings[build_hook_url]' value='<?php echo $build_hook; ?>' placeholder="https://api.netlify.com/build_hooks/123456789abcdefgh">
 
             <p class="description">A "Build hook" URL found in the <a href="https://app.netlify.com/" target="_blank">Netlify</a> admin under `Site Settings > Build & Deploy > Build hooks` settings page. Recommended to name this hook "WordPress" but it's optional.</p>
 
@@ -133,6 +132,7 @@ function nd_auto_depoy_render()
 function nd_options_page()
 {
     $options = get_option("nd_settings");
+    $status_url = $options["status_url"] ?? "";
 
     // Shape data for logging of last content publish
     $last_content = nd_get_last_published_content();
@@ -170,9 +170,9 @@ function nd_options_page()
                 Deploy recommended: <?php echo $needed; ?>
             </p>
 
-            <img class="nd-status-image" src="<?php echo $options[
-                "status_url"
-            ]; ?>"/>
+            <?php if ($status_url): ?>
+            <img class="nd-status-image" src="<?php echo $status_url; ?>"/>
+            <?php endif; ?>
 
             <form action='options.php' method='post'>
 

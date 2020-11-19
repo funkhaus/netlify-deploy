@@ -32,9 +32,11 @@ var nd = {
         );
 
         // Update button state periodically
-        setInterval(function() {
-            nd.getBuildStatus();
-        }, 5000);
+        if( !$j('#wpadminbar .nd-deploy-button').hasClass('nd-status-no-build-hook') ) {
+            setInterval(function() {
+                nd.getBuildStatus();
+            }, 5000);            
+        }
     },
 
     // Submit a deploy to the custom WP API

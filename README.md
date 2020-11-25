@@ -10,7 +10,7 @@ Trigger a deploy to Netlify either automatically or with a button in the dashboa
 
 ## Manual Deploy
 
-You can trigger a manual deploy by clicking the deploy button in the admin bar at the top of the WordPress dashboard. It updates in real time to show current build status. It will ask fro confirmation if the user tries to schedule multiple builds.
+You can trigger a manual deploy by clicking the deploy button in the admin bar at the top of the WordPress dashboard. It updates in real time to show current build status. It will ask for confirmation if the user tries to schedule multiple builds.
 
 ## Auto Deploy
 
@@ -22,3 +22,7 @@ The "Auto deploy on publish" setting will trigger a deploy to Netlify whenever t
     1. Nested Pages plugin changes the page (or CPT) order
 
 The auto-deploy function is debounced to only allow 1 deploy every 60 seconds. This means if you try to do multiple deploys, it will only do the first and last, and 60 seconds apart.
+
+## TODO
+
+1. Add a "settings" link on the plugin install page

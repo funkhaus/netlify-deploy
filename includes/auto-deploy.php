@@ -4,15 +4,20 @@
  */
 function nd_debounce_deploy($object_id)
 {
+
+    // Abort if doing an auto save of a revision
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+        return;
+    }
+
     $options = get_option("nd_settings");
 
-    // Abort early
+    // Abort early if we have no settings
     if (empty($options["auto_deploy"]) || empty($options["build_hook_url"])) {
-        return false;
+        return;
     }
 
     $deploy_time = get_transient("nd_deploy_time");
-
     if ($deploy_time) {
         // Try again in 60 seconds
         wp_clear_scheduled_hook("nd_run_auto_deploy");
@@ -28,7 +33,7 @@ add_action("attachment_updated", "nd_debounce_deploy");
 add_action("nestedpages_post_order_updated", "nd_debounce_deploy");
 
 /*
- * Run an auto deploy
+ * Run an auto deploy event
  */
 function nd_run_auto_deploy()
 {

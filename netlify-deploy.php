@@ -73,7 +73,7 @@ add_action("admin_enqueue_scripts", "nd_admin_scripts");
 /*
  * Register custom API endpoints
  */
-function nd_add_custom_api_routes()
+function nd_add_api_routes()
 {
     // Use this to trigger a deploy at Netlify
     register_rest_route("nd", "/deploy", [
@@ -93,16 +93,16 @@ function nd_add_custom_api_routes()
         ],
     ]);
 }
-add_action("rest_api_init", "nd_add_custom_api_routes");
+add_action("rest_api_init", "nd_add_api_routes");
 
 /*
  * This customizes the CORS headers the server will accept, allows use of token header
  */
-function add_custom_cors_headers()
+function nd_add_cors_headers()
 {
     add_filter("rest_pre_serve_request", function ($value) {
         header("Access-Control-Allow-Headers: Content-Type");
         return $value;
     });
 }
-add_action("rest_api_init", "add_custom_cors_headers", 15);
+add_action("rest_api_init", "nd_add_cors_headers", 15);

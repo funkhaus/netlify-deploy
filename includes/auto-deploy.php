@@ -10,10 +10,14 @@ function nd_debounce_deploy($object_id)
         return;
     }
 
-    $options = get_option("nd_settings");
-
+    // Abort if NOT publishing something
+    if( get_post_status($object_id) !== "publish") {
+        return;        
+    }
+    
     // Abort early if we have no settings
-    if (empty($options["auto_deploy"]) || empty($options["build_hook_url"])) {
+    $options = get_option("nd_settings");    
+    if ( empty($options["auto_deploy"]) || empty($options["build_hook_url"]) ) {
         return;
     }
 

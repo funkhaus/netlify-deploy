@@ -35,6 +35,7 @@ add_action("wp_update_nav_menu", "nd_debounce_deploy", 20, 1);
 add_action("save_post", "nd_debounce_deploy", 20, 1);
 add_action("attachment_updated", "nd_debounce_deploy", 20, 1);
 add_action("nestedpages_post_order_updated", "nd_debounce_deploy", 20, 1);
+add_action("delete_post", "nd_debounce_deploy", 20, 1 );
 
 /*
  * Run an auto deploy event

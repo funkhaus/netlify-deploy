@@ -31,10 +31,10 @@ function nd_debounce_deploy($object_id)
         set_transient("nd_deploy_time", time() + 59, 60);
     }
 }
-add_action("wp_update_nav_menu", "nd_debounce_deploy");
-add_action("save_post", "nd_debounce_deploy");
-add_action("attachment_updated", "nd_debounce_deploy");
-add_action("nestedpages_post_order_updated", "nd_debounce_deploy");
+add_action("wp_update_nav_menu", "nd_debounce_deploy", 20, 1);
+add_action("save_post", "nd_debounce_deploy", 20, 1);
+add_action("attachment_updated", "nd_debounce_deploy", 20, 1);
+add_action("nestedpages_post_order_updated", "nd_debounce_deploy", 20, 1);
 
 /*
  * Run an auto deploy event

@@ -20,6 +20,7 @@ The "Auto deploy on publish" setting will trigger a deploy to Netlify whenever t
     1. Attachment updated (but not created)
     1. Menu item changes
     1. Nested Pages plugin changes the page (or CPT) order
+    1. A post/page/CPT is deleted
 
 The auto-deploy function is debounced to only allow 1 deploy every 60 seconds. This means if you try to do multiple deploys, it will only do the first and last, and 60 seconds apart.
 

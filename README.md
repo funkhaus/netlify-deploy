@@ -26,3 +26,4 @@ The auto-deploy function is debounced to only allow 1 deploy every 60 seconds. T
 ## TODO
 
 1. Add a "settings" link on the plugin install page
+1. Merge Focushaus into this plugin

@@ -61,12 +61,19 @@ function nd_deploy_needed()
  * Return latest build status
  */
 function nd_get_build_status($content_header = "")
-{
+{   
+    $content_header = "";
     $options = get_option("nd_settings");
+    $url = $options["status_url"];
 
     // Get staus badge headers
-    if (!empty($options["status_url"])) {
-        $response = wp_remote_head($options["status_url"]);
+    if ( !empty($url) && wp_http_validate_url($url) ) {
+        $response = wp_remote_head($url);
+        
+        // Abort if error
+        if( is_wp_error($response) ){
+            return "unknown";
+        }
 
         if ($response["headers"]) {
             $content_header = $response["headers"]->offsetGet(

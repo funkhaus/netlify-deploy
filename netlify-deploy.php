@@ -2,7 +2,7 @@
 /*
 Plugin Name: Netlify Deploy
 Description: Trigger a deploy to Netlify either automatically or with a button in the dashboard.
-Version: 1.0.1
+Version: 1.0.2
 Author: Funkhaus
 Plugin URI:  https://github.com/funkhaus/netlify-deploy
 Author URI:  http://funkhaus.us

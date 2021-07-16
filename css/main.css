@@ -13,3 +13,6 @@
 .nd-status-failed .msg-failed {
     display: inline-block;
 }
+.page-nd-options .error {
+    color: #e65054;
+}

@@ -93,7 +93,14 @@ function nd_status_url_render()
                 ""; ?>' placeholder="https://api.netlify.com/api/v1/badges/1234-5789-0123/deploy-status">
 
             <p class="description">The "Deploy status badge" URL found in the <a href="https://app.netlify.com/" target="_blank">Netlify</a> admin under `Site Settings > General > Deploy status badge` settings page. Note, you only need to enter the URL, not the full badge markdown code.</p>
-        <?php
+
+        <?php 
+            $url = $options["status_url"];
+            if( strpos($url, ']') !== false || strpos($url, "[") !== false ) {
+                ?>
+                    <p class="error" style="color: #e65054;">It seems the URL contains some invalid characters. Are you sure you entered just the URL and not the Netlify markdown code?</p>
+                <?php
+            }
 }
 
 /*

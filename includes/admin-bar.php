@@ -14,9 +14,11 @@ function nd_toolbar_item($wp_admin_bar)
     }
 
     $title = '
-        <span class="msg msg-success"><span class="dashicons dashicons-admin-site"></span> New Deploy</span>
-        <span class="msg msg-building"><span class="dashicons dashicons-backup"></span> Deploying</span>
-        <span class="msg msg-failed"><span class="dashicons dashicons-dismiss"></span> Deploy failed</span>
+        <span class="msg msg-success" title="Last deploy succeeded. Click to trigger new deploy."><span class="dashicons dashicons-admin-site"></span> New Deploy</span>
+        <span class="msg msg-building" title="Deploy building"><span class="dashicons dashicons-backup"></span> Deploying</span>
+        <span class="msg msg-failed" title="Deploy failed"><span class="dashicons dashicons-warning"></span> Deploy failed</span>
+        <span class="msg msg-canceled" title="Deploy canceled"><span class="dashicons dashicons-dismiss"></span> Deploy cancelled</span>       
+        <span class="msg msg-unknown" title="Deploy status unknown"><span class="dashicons dashicons-flag"></span> Deploy status unknown</span>               
     ';
 
     $args = [

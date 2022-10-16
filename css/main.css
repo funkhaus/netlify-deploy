@@ -10,7 +10,9 @@
 .nd-status-no-build-hook .msg-success,
 .nd-status-success .msg-success,
 .nd-status-building .msg-building,
-.nd-status-failed .msg-failed {
+.nd-status-canceled .msg-canceled,
+.nd-status-failed .msg-failed,
+.nd-status-unknown .msg-unknown {
     display: inline-block;
 }
 .page-nd-options .error {

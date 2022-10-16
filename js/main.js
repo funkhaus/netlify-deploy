@@ -88,7 +88,7 @@ var nd = {
         // Update adminbar class
         $j(".nd-deploy-button")
             .removeClass(
-                "nd-status-unknown nd-status-success nd-status-building nd-status-failed"
+                "nd-status-unknown nd-status-success nd-status-building nd-status-failed nd-status-canceled"
             )
             .addClass("nd-status-" + status);
     },

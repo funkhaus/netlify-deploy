@@ -92,6 +92,10 @@ function nd_get_build_status($content_header = "")
         case strpos($content_header, "building") !== false:
             $status = "building";
             break;
+            
+        case strpos($content_header, "canceled") !== false:
+            $status = "canceled";
+            break;
 
         case strpos($content_header, "failed") !== false:
             $status = "failed";

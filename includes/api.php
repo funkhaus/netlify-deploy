@@ -71,7 +71,7 @@ function nd_build_get()
     $data = [
         "success" => true,
         "data" => [
-            "status" => nd_get_build_status($content_header),
+            "status" => nd_get_build_status(),
         ],
         "nonce" => wp_create_nonce("wp_rest"),
     ];

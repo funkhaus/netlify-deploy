@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: Netlify Deploy
-Description: Trigger a deploy to Netlify either automatically or with a button in the dashboard.
-Version: 1.1.0
+Description: Trigger a deploy to Netlify or Sevalla either automatically or with a button in the dashboard.
+Version: 1.2.0
 Author: Funkhaus
 Plugin URI:  https://github.com/funkhaus/netlify-deploy
 Author URI:  http://funkhaus.us
@@ -11,6 +11,8 @@ Author URI:  http://funkhaus.us
 /*
  * Import required files
  */
+include_once plugin_dir_path(__FILE__) . "includes/providers/netlify.php";
+include_once plugin_dir_path(__FILE__) . "includes/providers/sevalla.php";
 include_once plugin_dir_path(__FILE__) . "includes/utilities.php";
 include_once plugin_dir_path(__FILE__) . "includes/settings.php";
 include_once plugin_dir_path(__FILE__) . "includes/admin-bar.php";
@@ -27,6 +29,8 @@ function nd_plugin_activated()
         "status_url" => "",
         "build_hook_url" => "",
         "auto_deploy" => 0,
+        "provider" => "netlify",
+        "sevalla_site_id" => "",
     ];
     add_option("nd_settings", $defaults);
 }
@@ -75,7 +79,7 @@ add_action("admin_enqueue_scripts", "nd_admin_scripts");
  */
 function nd_add_api_routes()
 {
-    // Use this to trigger a deploy at Netlify
+    // Use this to trigger a deploy at the provider
     register_rest_route("nd", "/deploy", [
         [
             "methods" => "POST",
@@ -84,7 +88,7 @@ function nd_add_api_routes()
         ],
     ]);
 
-    // Use this to get status of a deploy at Netlify
+    // Use this to get status of a deploy at the provider
     register_rest_route("nd", "/build", [
         [
             "methods" => "GET",

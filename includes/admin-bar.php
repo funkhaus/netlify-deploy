@@ -5,13 +5,7 @@
  */
 function nd_toolbar_item($wp_admin_bar)
 {
-    $options = get_option("nd_settings");
-    $status = nd_get_build_status();
-    $has_build_hook = !empty($options["build_hook_url"]);
-
-    if( !$has_build_hook ) {
-        $status = "no-build-hook";
-    }
+    $status = nd_is_configured() ? nd_get_build_status() : "no-build-hook";
 
     $title = '
         <span class="msg msg-success" title="Last deploy succeeded. Click to trigger new deploy."><span class="dashicons dashicons-admin-site"></span> New Deploy</span>

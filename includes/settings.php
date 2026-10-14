@@ -23,9 +23,10 @@
  */
 function nd_register_options_page()
 {
+    $title = nd_get_provider_label() . " Deploy";
     add_options_page(
-        "Netlify Deploy",
-        "Netlify Deploy",
+        $title,
+        $title,
         "manage_options",
         "netlify-deploy",
         "nd_options_page"
@@ -38,7 +39,9 @@ add_action("admin_menu", "nd_register_options_page");
  */
 function nd_settings_init()
 {
-    register_setting("nd_plugin", "nd_settings");
+    register_setting("nd_plugin", "nd_settings", [
+        "sanitize_callback" => "nd_sanitize_settings",
+    ]);
 
     add_settings_section(
         "nd_plugin_section",
@@ -48,20 +51,47 @@ function nd_settings_init()
     );
 
     add_settings_field(
-        "build_hook_url",
-        "Netlify build hook URL",
-        "nd_build_hook_url_render",
+        "provider",
+        "Frontend host",
+        "nd_provider_render",
         "nd_plugin",
         "nd_plugin_section"
     );
 
-    add_settings_field(
-        "status_url",
-        "Netlify status badge URL",
-        "nd_status_url_render",
-        "nd_plugin",
-        "nd_plugin_section"
-    );
+    // Only show fields for the saved provider. Hidden fields keep their values (see nd_sanitize_settings).
+    if (nd_get_provider() === "sevalla") {
+        add_settings_field(
+            "sevalla_site_id",
+            "Sevalla static site ID",
+            "nd_sevalla_site_id_render",
+            "nd_plugin",
+            "nd_plugin_section"
+        );
+
+        add_settings_field(
+            "sevalla_api_key",
+            "Sevalla API key",
+            "nd_sevalla_api_key_render",
+            "nd_plugin",
+            "nd_plugin_section"
+        );
+    } else {
+        add_settings_field(
+            "build_hook_url",
+            "Netlify build hook URL",
+            "nd_build_hook_url_render",
+            "nd_plugin",
+            "nd_plugin_section"
+        );
+
+        add_settings_field(
+            "status_url",
+            "Netlify status badge URL",
+            "nd_status_url_render",
+            "nd_plugin",
+            "nd_plugin_section"
+        );
+    }
 
     add_settings_field(
         "auto_deploy",
@@ -72,6 +102,96 @@ function nd_settings_init()
     );
 }
 add_action("admin_init", "nd_settings_init");
+
+/*
+ * Merge submitted fields over the saved options, so fields not on the form
+ * (last_deploy, the other provider's settings) aren't wiped on save.
+ */
+function nd_sanitize_settings($input)
+{
+    $options = get_option("nd_settings");
+    $options = is_array($options) ? $options : [];
+    $input = is_array($input) ? $input : [];
+
+    // The settings form always submits provider. Code that calls update_option() passes the full options array.
+    $is_form_submit = isset($input["provider"]);
+
+    foreach (["build_hook_url", "status_url"] as $key) {
+        if (isset($input[$key])) {
+            $options[$key] = esc_url_raw(trim($input[$key]));
+        }
+    }
+    if (isset($input["sevalla_site_id"])) {
+        $options["sevalla_site_id"] = sanitize_text_field(
+            trim($input["sevalla_site_id"])
+        );
+    }
+    if (isset($input["provider"])) {
+        $options["provider"] =
+            $input["provider"] === "sevalla" ? "sevalla" : "netlify";
+    }
+    if (isset($input["last_deploy"])) {
+        $options["last_deploy"] = $input["last_deploy"];
+    }
+
+    // An unchecked checkbox isn't submitted at all, so on a form save its absence means off
+    if ($is_form_submit) {
+        $options["auto_deploy"] = empty($input["auto_deploy"]) ? 0 : 1;
+    } elseif (isset($input["auto_deploy"])) {
+        $options["auto_deploy"] = $input["auto_deploy"];
+    }
+
+    // Settings changed, so don't trust the cached deploy status
+    delete_transient("nd_sevalla_status");
+
+    return $options;
+}
+
+/*
+ * Render function
+ */
+function nd_provider_render()
+{
+    $provider = nd_get_provider(); ?>
+            <select class="input input-provider" name="nd_settings[provider]">
+                <option value="netlify" <?php selected($provider, "netlify"); ?>>Netlify</option>
+                <option value="sevalla" <?php selected($provider, "sevalla"); ?>>Sevalla</option>
+            </select>
+
+            <p class="description">Where the frontend is built and hosted. Save to show that host's settings.</p>
+        <?php
+}
+
+/*
+ * Render function
+ */
+function nd_sevalla_site_id_render()
+{
+    $options = get_option("nd_settings");
+    $site_id = $options["sevalla_site_id"] ?? "";
+    ?>
+            <input type='text' class="input input-sevalla-site-id regular-text code" name='nd_settings[sevalla_site_id]' value='<?php echo esc_attr(
+                $site_id
+            ); ?>' placeholder="1a2b3c4d-1234-5678-9abc-1a2b3c4d5e6f">
+
+            <p class="description">The static site's ID, found in its URL in the <a href="https://app.sevalla.com/" target="_blank">Sevalla</a> dashboard or via the API (<code>GET /v3/static-sites</code>).</p>
+        <?php
+}
+
+/*
+ * Render function. The key itself is never shown.
+ */
+function nd_sevalla_api_key_render()
+{
+    if (nd_sevalla_has_api_key()): ?>
+            <p><span class="dashicons dashicons-yes" style="color: #00a32a;"></span> Set in wp-config.php (<code>ND_SEVALLA_API_KEY</code>).</p>
+        <?php else: ?>
+            <p class="error" style="color: #e65054;">Missing. Add <code>define("ND_SEVALLA_API_KEY", "…");</code> to wp-config.php.</p>
+        <?php endif; ?>
+
+            <p class="description">Create the key in Sevalla under Integration &gt; API keys with custom capabilities <code>STATIC_SITE:READ</code> and <code>STATIC_SITE:UPDATE</code>, both scoped to this one static site. It lives in wp-config.php so it stays out of the database and DB exports.</p>
+        <?php
+}
 
 /*
  * Render function for what comes after the new settings group title.
@@ -151,7 +271,7 @@ function nd_options_page()
         $type = "A menu was updated";
     }
 
-    // Get the last time a deploy was sent to Netlify from WordPress
+    // Get the last time a deploy was sent to the provider from WordPress
     $last_deploy = nd_get_last_deploy_datetimestamp();
     if (!$last_deploy) {
         $last_deploy = "Never";
@@ -165,9 +285,9 @@ function nd_options_page()
     ?>
 
         <div id="page-nd-options" class="wrap page-nd-options">
-            <h1>Netlify Deploy</h1>
+            <h1><?php echo nd_get_provider_label(); ?> Deploy</h1>
 
-            <p>This plugin enables auto deploys to Netlify when any post types, menus or attachments change in WordPress. It also adds a manual Deploy button to the admin bar.</p>
+            <p>This plugin enables auto deploys to <?php echo nd_get_provider_label(); ?> when any post types, menus or attachments change in WordPress. It also adds a manual Deploy button to the admin bar.</p>
 
             <h2>Deploy status</h2>
 
@@ -177,7 +297,7 @@ function nd_options_page()
                 Deploy recommended: <?php echo $needed; ?>
             </p>
 
-            <?php if ($status_url): ?>
+            <?php if ($status_url && nd_get_provider() === "netlify"): ?>
             <img class="nd-status-image" src="<?php echo $status_url; ?>"/>
             <?php endif; ?>
 

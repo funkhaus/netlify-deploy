@@ -17,7 +17,7 @@ function nd_debounce_deploy($object_id)
     
     // Abort early if we have no settings
     $options = get_option("nd_settings");    
-    if ( empty($options["auto_deploy"]) || empty($options["build_hook_url"]) ) {
+    if ( empty($options["auto_deploy"]) || !nd_is_configured() ) {
         return;
     }
 

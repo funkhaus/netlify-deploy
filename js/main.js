@@ -63,8 +63,13 @@ var nd = {
             // Process response
             var data = await response.json();
 
-            // Set new nonce
-            nd.nonce = data.nonce;
+            // Set new nonce (error responses don't include one)
+            nd.nonce = data.nonce || nd.nonce;
+
+            // Show the provider's error, e.g. a missing or under-scoped API key
+            if (!response.ok) {
+                alert(data.message || "There was an error when trying to deploy.");
+            }
         } catch (e) {
             alert("There was an error when trying to deploy.");
             nd.setBuildStatus("failed");
@@ -107,11 +112,13 @@ var nd = {
         });
 
         var json = await response.json();
-        nd.nonce = json.nonce;
+        nd.nonce = json.nonce || nd.nonce;
 
-        nd.setBuildStatus(json.data.status || "unknown");
+        // WP error responses carry an HTTP code in data.status, not a build status
+        var status = (response.ok && json.data && json.data.status) || "unknown";
+        nd.setBuildStatus(status);
 
-        return json.data.status;
+        return status;
     }
 };
 jQuery(document).ready(function() {

@@ -14,37 +14,26 @@ function nd_check_user_can_publish($request)
 }
 
 /**
- * Post to the Netlify build hook
+ * Trigger a deploy at the configured provider (Netlify build hook or Sevalla API)
  */
 function nd_deploy_post()
 {
-    $options = get_option("nd_settings");
+    // Return error if the provider isn't set up in admin
+    if (!nd_is_configured()) {
+        $message =
+            nd_get_provider() === "sevalla"
+                ? "You need to define a Sevalla site ID on the settings page and ND_SEVALLA_API_KEY in wp-config.php."
+                : "You need to define a Build hook url on the settings page.";
 
-    $url = $options["build_hook_url"] ?? "";
-
-    if ($url) {
-        // Attempt to POST to Netlify build
-        $response = wp_remote_post($url);
-    } else {
-        // Return error if no URL set in admin
-        return new WP_Error(
-            "invalid_url",
-            "You need to define a Build hook url on the settings page.",
-            [
-                "status" => 422,
-            ]
-        );
+        return new WP_Error("invalid_url", $message, [
+            "status" => 422,
+        ]);
     }
 
-    // If there was an error trying to hit Netlify
-    if (is_wp_error($response)) {
-        return new WP_Error(
-            "network_error",
-            "Something went wrong with the network request.",
-            [
-                "status" => 400,
-            ]
-        );
+    // If there was an error trying to hit the provider
+    $result = nd_trigger_deploy();
+    if (is_wp_error($result)) {
+        return $result;
     }
 
     // Build return data
@@ -56,6 +45,7 @@ function nd_deploy_post()
     ];
 
     // Save last deploy time
+    $options = get_option("nd_settings");
     $options["last_deploy"] = $timestamp;
     update_option("nd_settings", $options);
 
@@ -63,7 +53,7 @@ function nd_deploy_post()
 }
 
 /*
- * Get the build status from Netlify
+ * Get the build status from the provider
  */
 function nd_build_get()
 {

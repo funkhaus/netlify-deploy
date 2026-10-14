@@ -58,49 +58,61 @@ function nd_deploy_needed()
 }
 
 /*
- * Return latest build status
+ * Return the frontend host deploys go to: "netlify" (default) or "sevalla"
  */
-function nd_get_build_status($content_header = "")
-{   
-    $content_header = "";
+function nd_get_provider()
+{
     $options = get_option("nd_settings");
-    $url = $options["status_url"];
 
-    // Get staus badge headers
-    if ( !empty($url) && wp_http_validate_url($url) ) {
-        $response = wp_remote_head($url);
-        
-        // Abort if error
-        if( is_wp_error($response) ){
-            return "unknown";
-        }
+    return ($options["provider"] ?? "") === "sevalla" ? "sevalla" : "netlify";
+}
 
-        if ($response["headers"]) {
-            $content_header = $response["headers"]->offsetGet(
-                "content-disposition"
-            );
-        }
+/*
+ * Return the frontend host's display name
+ */
+function nd_get_provider_label()
+{
+    return nd_get_provider() === "sevalla" ? "Sevalla" : "Netlify";
+}
+
+/*
+ * Return boolean if the current provider has everything it needs to deploy
+ */
+function nd_is_configured()
+{
+    $options = get_option("nd_settings");
+
+    if (nd_get_provider() === "sevalla") {
+        return nd_sevalla_is_configured($options);
     }
 
-    // Determine status from content-disposition header (it inlcudes the SVG filename so we look for that).
-    $status = "unknown";
-    switch (true) {
-        case strpos($content_header, "success") !== false:
-            $status = "success";
-            break;
+    return nd_netlify_is_configured($options);
+}
 
-        case strpos($content_header, "building") !== false:
-            $status = "building";
-            break;
-            
-        case strpos($content_header, "canceled") !== false:
-            $status = "canceled";
-            break;
+/*
+ * Trigger a deploy at the current provider. Returns true or WP_Error.
+ */
+function nd_trigger_deploy()
+{
+    $options = get_option("nd_settings");
 
-        case strpos($content_header, "failed") !== false:
-            $status = "failed";
-            break;
+    if (nd_get_provider() === "sevalla") {
+        return nd_sevalla_trigger_deploy($options);
     }
 
-    return $status;
+    return nd_netlify_trigger_deploy($options);
+}
+
+/*
+ * Return latest build status: success, building, failed, canceled or unknown
+ */
+function nd_get_build_status()
+{
+    $options = get_option("nd_settings");
+
+    if (nd_get_provider() === "sevalla") {
+        return nd_is_configured() ? nd_sevalla_get_status($options) : "unknown";
+    }
+
+    return nd_netlify_get_status($options);
 }
